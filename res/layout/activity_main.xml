@@ -9,8 +9,21 @@
     tools:context=".MainActivity" >
 
     <TextView
+        android:id="@+id/textViewPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="@string/play" />    	
+
+    <Button
+        android:id="@+id/buttonPlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"        
+        android:layout_below="@+id/textViewPlay"
+        android:text="@string/play" />
 
 </RelativeLayout>
