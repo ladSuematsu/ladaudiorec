@@ -1,6 +1,6 @@
 package com.ladsoft.ladaudiorec;
 
-import java.io.IOException;
+//import java.io.IOException;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,8 +10,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.view.Menu;
+import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioRecord;
 import android.media.MediaPlayer;
+import android.media.MediaRecorder;
+import android.media.MediaRecorder.AudioEncoder;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
@@ -25,10 +29,13 @@ public class MainActivity extends Activity{
 
 	//private SoundPool soundPool;
 	private MediaPlayer mediaPlayer;
+	private AudioRecord audioRecorder;
 	//private int soundID;
 	boolean loaded = false;
+	boolean recording = false;
 	
 	private Button buttonPlay;
+	private Button buttonRecord;
 	
 	
 	/* Called when the activity is first created. */
@@ -43,6 +50,11 @@ public class MainActivity extends Activity{
 		
 		mediaPlayer = new MediaPlayer();
 		
+		audioRecorder = new AudioRecord(
+				MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT,
+				AudioRecord.getMinBufferSize(44100 , AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT));
+		
+		
 		buttonPlay = (Button) findViewById(R.id.buttonPlay);
 		buttonPlay.setOnClickListener(new Button.OnClickListener() {
 					
@@ -52,7 +64,14 @@ public class MainActivity extends Activity{
 			}
 				
 		});
-			
+		
+		buttonRecord = (Button) findViewById(R.id.buttonRecord);
+		buttonRecord.setOnClickListener(new Button.OnClickListener(){
+			public void onClick(View v)
+			{
+				record();
+			}
+		});
 	}
 	
 	/*Release resources used by soundPool*/
@@ -63,6 +82,8 @@ public class MainActivity extends Activity{
 		
 		mediaPlayer.release();
 		mediaPlayer = null;
+		audioRecorder.release();
+		audioRecorder = null;
 	}
 	
 	//Sets the MediaPlayer instance, sets the data source and plays the sound
@@ -81,6 +102,27 @@ public class MainActivity extends Activity{
             Log.v(getString(R.string.app_name), e.getMessage());
 		}
 	}
+	
+	//Record audio
+	public void record()
+	{
+		
+		try{
+			if(audioRecorder.getState() == AudioRecord.RECORDSTATE_STOPPED){
+				audioRecorder.startRecording();
+				buttonRecord.setText(R.string.stopRecord);
+			}
+			else if(audioRecorder.getState() == AudioRecord.RECORDSTATE_RECORDING){
+				audioRecorder.stop();
+				buttonRecord.setText(R.string.record);
+			}	
+		}
+		catch(Exception e)
+		{
+			Log.v(getString(R.string.app_name), e.getMessage());
+		}
+	}
+	
 	
 //	@Override
 //	public void onCreate(Bundle savedInstanceState){
