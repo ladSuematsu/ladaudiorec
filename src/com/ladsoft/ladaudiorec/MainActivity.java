@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.view.Menu;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
@@ -23,13 +25,25 @@ import android.widget.Button;
 
 public class MainActivity extends Activity{
 
-	//private SoundPool soundPool;
+	private static final String LOG_TAG = "AudioRecordTest";
+	private static String mediaFileName = null;
+	
 	private MediaPlayer mediaPlayer;
-	//private int soundID;
+	private MediaRecorder mediaRecorder;
+	
+	
 	boolean loaded = false;
+	boolean recording = false;
 	
 	private Button buttonPlay;
+	private Button recordButton;
 	
+	
+	public MainActivity()
+	{
+		mediaFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
+		mediaFileName += "/audioRecorded.3gp";
+	}
 	
 	/* Called when the activity is first created. */
 	@Override
@@ -52,9 +66,19 @@ public class MainActivity extends Activity{
 			}
 				
 		});
+		
+		recordButton = (Button) findViewById(R.id.buttonRecord);
+		recordButton.setOnClickListener(new Button.OnClickListener(){
+			@Override
+			public void onClick(View v)
+			{
+				onRecord(recording);
+				recording = !recording;
+			}
 			
+		});
 	}
-	
+		
 	/*Release resources used by soundPool*/
 	@Override
 	public void onDestroy()
@@ -82,82 +106,70 @@ public class MainActivity extends Activity{
 		}
 	}
 	
-//	@Override
-//	public void onCreate(Bundle savedInstanceState){
-//		super.onCreate(savedInstanceState);
-//		setContentView(R.layout.activity_main);
-//		
-//		//Set the hardware buttons to control the music
-//		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
-//		
-//		//Load the sound
-//		soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-//		soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-//			@Override
-//			public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-//				loaded = true;
-//				
-//			}
-//		});
-//		
-//		
-//		soundID = soundPool.load(this, R.raw.sound1 , 1);
-//		
-//		buttonPlay= (Button) findViewById(R.id.buttonPlay);
-//		buttonPlay.setOnClickListener(new Button.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//					playback();
-//				}
-//		});
-//		
-//	}
 	
-//	/*Release resources used by soundPool*/
-//	@Override
-//	public void onDestroy()
-//	{
-//		super.onDestroy();
-//		soundPool.release();
-//	}
-//	
-//	
-//	public void playback()
-//	{
-//		AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-//		float actualVolume = (float) audioManager
-//				.getStreamVolume(AudioManager.STREAM_MUSIC);
-//		float maxVolume = (float) audioManager
-//				.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-//		float volume = actualVolume / maxVolume;
-//		
-//		//plays the sound if it was already loaded
-//		if(loaded)
-//		{
-//			soundPool.play(soundID, volume, volume, 1, 0, 1f);
-//		}
-//	}
+
+	/*Recording elements*/
+	public class RecordButton extends Button
+	{
+		boolean recording = false;
+		
+		OnClickListener clickListener = new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				onRecord(recording);
+				recording = !recording;
+			}
+		};
+		
+		
+		public RecordButton(Context context)
+		{
+			super(context);
+		}
+		
+	};
+
+	private void onRecord(boolean recording)
+	{
+		if(!recording)
+		{
+			startRecording();
+		}
+		else
+		{
+			stopRecording();
+		}
+	}
 	
+	private void startRecording()
+	{
+		mediaRecorder = new MediaRecorder();
+		mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		mediaRecorder.setOutputFile(mediaFileName);
+		mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+		
+		try{
+			mediaRecorder.prepare();
+			mediaRecorder.start();
+		}
+		catch(IOException e){
+			Log.e(LOG_TAG, "MediaRecorder.prepare() failed");
+		}
+	}
+	
+	private void stopRecording()
+	{
+		try{
+			mediaRecorder.stop();
+			mediaRecorder.reset();
+		}
+		catch(IllegalStateException e){
+			Log.e(LOG_TAG, "MediaRecorder.stop() failed");
+		}
+		finally{
+			mediaRecorder.release();
+			mediaRecorder = null;
+		}
+	}
 }
-
-
-
-
-
-//public class MainActivity extends Activity {
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//    }
-//
-//
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//    
-//}
