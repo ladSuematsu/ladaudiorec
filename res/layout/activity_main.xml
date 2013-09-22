@@ -26,4 +26,20 @@
         android:layout_below="@+id/textViewPlay"
         android:text="@string/play" />
 
+    <Button
+        android:id="@+id/buttonRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/record" />
+
+    <TextView
+        android:id="@+id/textViewRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/buttonRecord"
+        android:layout_centerHorizontal="true"
+        android:text="@string/record" />
+
 </RelativeLayout>
