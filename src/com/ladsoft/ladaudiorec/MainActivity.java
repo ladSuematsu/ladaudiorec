@@ -1,5 +1,8 @@
 package com.ladsoft.ladaudiorec;
 
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import android.net.Uri;
@@ -42,7 +45,7 @@ public class MainActivity extends Activity{
 	public MainActivity()
 	{
 		mediaFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-		mediaFileName += "/audioRecorded.3gp";
+		mediaFileName += "/audioRecorded.3gpp";
 	}
 	
 	/* Called when the activity is first created. */
@@ -93,10 +96,15 @@ public class MainActivity extends Activity{
 	public void playback()
 	{
 		try{
-			Uri uri = Uri.parse("android.resource://com.ladsoft.ladaudiorec/" + R.raw.sound1);
+//			Uri uri = Uri.parse("android.resource://com.ladsoft.ladaudiorec/" + R.raw.sound1);
+			
+			File file = new File(mediaFileName);
+			FileInputStream fileDescriptor = new FileInputStream(file);
 			
 			mediaPlayer.reset();
-			mediaPlayer.setDataSource(this, uri);
+			mediaPlayer.setDataSource(fileDescriptor.getFD());
+			fileDescriptor.close();
+			//mediaPlayer.setDataSource(this, uri);
 			mediaPlayer.prepare();
 			mediaPlayer.start();
 		}
