@@ -18,6 +18,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.SoundPool;
+import android.media.AudioTrack.OnPlaybackPositionUpdateListener;
 import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
 import android.util.Log;
@@ -65,7 +66,7 @@ public class MainActivity extends Activity{
 					
 			@Override
 			public void onClick(View v) {	
-				playback();
+				onPlay();
 			}
 				
 		});
@@ -75,8 +76,7 @@ public class MainActivity extends Activity{
 			@Override
 			public void onClick(View v)
 			{
-				onRecord(recording);
-				recording = !recording;
+				onRecord();
 			}
 			
 		});
@@ -92,6 +92,16 @@ public class MainActivity extends Activity{
 		mediaPlayer = null;
 	}
 	
+	public void onPlay()
+	{
+		if(recording)
+		{
+			playback();
+			recording= !recording;
+		}
+	}
+	
+	
 	//Sets the MediaPlayer instance, sets the data source and plays the sound
 	public void playback()
 	{
@@ -103,41 +113,20 @@ public class MainActivity extends Activity{
 			
 			mediaPlayer.reset();
 			mediaPlayer.setDataSource(fileDescriptor.getFD());
+			
 			fileDescriptor.close();
-			//mediaPlayer.setDataSource(this, uri);
+			
 			mediaPlayer.prepare();
-			mediaPlayer.start();
+			mediaPlayer.start();	
+			
 		}
 		catch(Exception e)
 		{
             Log.v(getString(R.string.app_name), e.getMessage());
 		}
 	}
-	
-	
 
-	/*Recording elements*/
-	public class RecordButton extends Button
-	{
-		boolean recording = false;
-		
-		OnClickListener clickListener = new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				onRecord(recording);
-				recording = !recording;
-			}
-		};
-		
-		
-		public RecordButton(Context context)
-		{
-			super(context);
-		}
-		
-	};
-
-	private void onRecord(boolean recording)
+	private void onRecord()
 	{
 		if(!recording)
 		{
@@ -147,6 +136,8 @@ public class MainActivity extends Activity{
 		{
 			stopRecording();
 		}
+		
+		recording = !recording;
 	}
 	
 	private void startRecording()
